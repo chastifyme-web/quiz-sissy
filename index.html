@@ -1,0 +1,494 @@
+<div id="chastifyme-quiz">
+
+<style>
+#chastifyme-quiz {
+  font-family: 'Poppins', sans-serif;
+}
+
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Poppins',sans-serif;background:#fff;color:#111;min-height:100vh;}
+.screen{display:none;}
+.screen.active{display:block;}
+
+.intro{max-width:680px;padding:60px 24px 80px;}
+.intro-eyebrow{font-family:'Roboto Mono',monospace;font-size:11px;letter-spacing:2px;text-transform:uppercase;color:#F26184;margin-bottom:16px;display:flex;align-items:center;gap:8px;}
+.intro-eyebrow::before{content:'';width:8px;height:8px;border-radius:50%;background:#F26184;display:inline-block;}
+.intro-title{font-size:clamp(32px,6vw,52px);font-weight:800;color:#111;line-height:1.1;margin-bottom:20px;text-transform:uppercase;letter-spacing:-0.5px;}
+.intro-title span{color:#F26184;}
+.intro-desc{font-size:15px;color:#555;line-height:1.8;margin-bottom:28px;max-width:540px;}
+.intro-badges{display:flex;gap:20px;flex-wrap:wrap;margin-bottom:32px;}
+.intro-badge{display:flex;align-items:center;gap:8px;font-size:12px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:#111;}
+.intro-badge::before{content:'✓';width:20px;height:20px;border-radius:50%;background:#111;display:inline-flex;align-items:center;justify-content:center;font-size:11px;color:#fff;flex-shrink:0;}
+.divider{border:none;border-top:1px solid #eee;margin:28px 0;}
+.stats{display:flex;gap:40px;flex-wrap:wrap;margin-bottom:36px;}
+.stat-num{font-size:28px;font-weight:800;color:#111;display:block;letter-spacing:-0.5px;}
+.stat-label{font-family:'Roboto Mono',monospace;font-size:9px;letter-spacing:1.5px;text-transform:uppercase;color:#aaa;}
+.btn-start{display:inline-flex;align-items:center;justify-content:center;background:#111;color:#fff;border:none;font-family:'Poppins',sans-serif;font-size:13px;font-weight:700;letter-spacing:2px;text-transform:uppercase;padding:0 36px;height:52px;cursor:pointer;border-radius:4px;transition:background 0.2s;}
+.btn-start:hover{background:#F26184;}
+
+.question-wrap{max-width:680px;padding:40px 24px 80px;}
+.q-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;}
+.q-progress-label{font-family:'Roboto Mono',monospace;font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:#aaa;}
+.q-progress-count{font-family:'Roboto Mono',monospace;font-size:11px;color:#aaa;}
+.q-progress-track{width:100%;height:3px;background:#f0d0d8;margin-bottom:4px;border-radius:4px;}
+.q-progress-fill{height:100%;background:#F26184;transition:width 0.4s ease;border-radius:4px;}
+.q-progress-pct{font-family:'Roboto Mono',monospace;font-size:9px;color:#F26184;text-align:right;margin-bottom:28px;}
+.q-eyebrow{font-family:'Roboto Mono',monospace;font-size:10px;letter-spacing:2px;text-transform:uppercase;color:#F26184;margin-bottom:10px;}
+.q-text{font-size:clamp(18px,3.5vw,26px);font-weight:800;color:#111;line-height:1.2;text-transform:uppercase;letter-spacing:-0.3px;margin-bottom:6px;}
+.q-hint{font-size:13px;color:#aaa;margin-bottom:24px;}
+.options{display:flex;flex-direction:column;gap:2px;}
+.opt{display:flex;align-items:center;border:1px solid #eee;cursor:pointer;transition:all 0.15s;background:#fff;border-radius:4px;overflow:hidden;}
+.opt:hover{border-color:#111;}
+.opt.selected{border-color:#111;}
+.opt-letter{font-family:'Roboto Mono',monospace;font-size:11px;font-weight:500;color:#aaa;background:#f7f7f7;padding:0 16px;min-height:72px;min-width:52px;display:flex;align-items:center;justify-content:center;border-right:1px solid #eee;flex-shrink:0;transition:all 0.15s;}
+.opt.selected .opt-letter{background:#111;color:#fff;border-color:#111;}
+.opt-body{padding:14px 16px;flex:1;}
+.opt-title{font-size:12px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:#111;margin-bottom:3px;}
+.opt-sub{font-size:13px;color:#777;line-height:1.4;}
+.opt-radio{width:18px;height:18px;border-radius:50%;border:1.5px solid #ddd;margin-right:16px;flex-shrink:0;transition:all 0.15s;background:#fff;}
+.opt.selected .opt-radio{border-color:#F26184;background:#F26184;}
+.q-nav{display:flex;justify-content:space-between;align-items:center;margin-top:28px;padding-top:24px;border-top:1px solid #eee;}
+.btn-prev{background:transparent;border:none;font-family:'Poppins',sans-serif;font-size:13px;color:#aaa;cursor:pointer;}
+.btn-prev:hover{color:#111;}
+.btn-next{display:inline-flex;align-items:center;justify-content:center;background:#ccc;color:#fff;border:none;font-family:'Poppins',sans-serif;font-size:12px;font-weight:700;letter-spacing:2px;text-transform:uppercase;padding:0 28px;height:48px;cursor:pointer;transition:background 0.2s;border-radius:4px;}
+.btn-next.active{background:#111;}
+.btn-next.active:hover{background:#F26184;}
+
+/* RÉSULTAT */
+.result-wrap{max-width:680px;padding:40px 24px 80px;}
+.result-badge-label{font-family:'Roboto Mono',monospace;font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:#aaa;background:#f5f5f5;display:inline-block;padding:4px 12px;margin-bottom:16px;border-radius:4px;}
+.result-headline{font-size:14px;color:#777;margin-bottom:4px;}
+.result-name{font-size:clamp(26px,5vw,38px);font-weight:800;color:#F26184;line-height:1.1;text-transform:uppercase;margin-bottom:6px;}
+.result-level{font-family:'Roboto Mono',monospace;font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:#aaa;margin-bottom:20px;display:block;}
+.r-divider{border:none;border-top:1px solid #eee;margin:20px 0;}
+
+/* SCORE HERO avec image */
+.score-hero{position:relative;border-radius:4px;margin-bottom:20px;overflow:hidden;min-height:180px;display:flex;align-items:flex-end;}
+.score-hero-img{position:absolute;top:0;left:0;right:0;bottom:0;width:100%;height:100%;object-fit:cover;object-position:center top;}
+.score-hero-overlay{position:absolute;top:0;left:0;right:0;bottom:0;background:linear-gradient(90deg,rgba(17,17,17,0.92) 50%,rgba(17,17,17,0.4) 100%);}
+.score-hero-content{position:relative;z-index:2;padding:24px 28px;display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;width:100%;}
+.score-hero-eyebrow{font-family:'Roboto Mono',monospace;font-size:9px;letter-spacing:2px;text-transform:uppercase;color:#F4A0B5;margin-bottom:6px;}
+.score-hero-num{font-size:52px;font-weight:800;color:#F26184;line-height:1;letter-spacing:-2px;}
+.score-hero-denom{font-size:20px;font-weight:400;color:#5a3545;}
+.score-hero-pts{font-family:'Roboto Mono',monospace;font-size:10px;color:#5a3545;margin-top:4px;}
+.score-level-badge{display:inline-block;background:#F26184;color:#fff;font-family:'Roboto Mono',monospace;font-size:9px;letter-spacing:1.5px;text-transform:uppercase;padding:5px 12px;border-radius:4px;margin-bottom:8px;}
+.score-archetype{font-size:13px;font-weight:700;color:#fff;text-transform:uppercase;letter-spacing:0.5px;}
+
+/* Animation nom profil */
+.result-name{font-size:clamp(26px,5vw,38px);font-weight:800;color:#F26184;line-height:1.1;text-transform:uppercase;margin-bottom:6px;min-height:44px;}
+@keyframes blink{0%,100%{opacity:1;}50%{opacity:0;}}
+.cursor{display:inline-block;width:3px;height:0.9em;background:#F26184;margin-left:2px;vertical-align:middle;animation:blink 0.7s infinite;}
+
+/* Teasing animé */
+.teasing-line{font-size:15px;font-style:italic;color:#F26184;margin:20px 0;padding:14px 18px;border-left:3px solid #FDD8DF;background:#fff9fb;border-radius:0 4px 4px 0;min-height:52px;}
+
+/* ANALYSE */
+.analysis-block{border-left:3px solid #F26184;padding:16px 20px;margin-bottom:20px;border-radius:0 4px 4px 0;}
+.analysis-eyebrow{font-family:'Roboto Mono',monospace;font-size:9px;letter-spacing:1.5px;text-transform:uppercase;color:#F26184;margin-bottom:6px;}
+.analysis-title{font-size:14px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;color:#111;margin-bottom:10px;}
+.analysis-desc{font-size:14px;color:#555;line-height:1.85;margin-bottom:12px;}
+.analysis-aspiration{font-size:13px;color:#111;font-style:italic;line-height:1.7;border-top:1px solid #f0e8ed;padding-top:12px;}
+.aspiration-label{font-family:'Roboto Mono',monospace;font-size:9px;letter-spacing:1.5px;text-transform:uppercase;color:#F26184;display:block;font-style:normal;margin-bottom:4px;}
+
+/* RADAR pleine largeur */
+.radar-block{background:#fff;border:1px solid #eee;border-radius:4px;padding:20px;margin-bottom:12px;display:flex;flex-direction:column;align-items:center;}
+.radar-title{font-family:'Roboto Mono',monospace;font-size:9px;letter-spacing:1.5px;text-transform:uppercase;color:#aaa;margin-bottom:16px;text-align:center;}
+
+/* BARRES pleine largeur */
+.bars-block{background:#FDD8DF;border-radius:4px;padding:22px 22px;margin-bottom:20px;}
+.bars-eyebrow{font-family:'Roboto Mono',monospace;font-size:9px;letter-spacing:1.5px;text-transform:uppercase;color:#d44d6e;margin-bottom:4px;}
+.bars-title{font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;color:#111;margin-bottom:18px;}
+.bar-row{margin-bottom:16px;}
+.bar-row:last-child{margin-bottom:0;}
+.bar-label-row{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:6px;}
+.bar-label{font-size:13px;color:#111;font-weight:500;}
+.bar-pct{font-family:'Roboto Mono',monospace;font-size:16px;font-weight:700;color:#F26184;}
+.bar-track{width:100%;height:8px;background:rgba(242,97,132,0.2);border-radius:4px;}
+.bar-fill{height:100%;background:#F26184;border-radius:4px;width:0%;transition:width 1s ease;}
+.bar-fill.low{background:#F4A0B5;}
+.bar-fill.high{background:#d44d6e;}
+
+/* PRODUITS */
+.reco-eyebrow{font-family:'Roboto Mono',monospace;font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:#aaa;margin-bottom:14px;}
+.products-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:20px;}
+.product-card{border:1px solid #eee;border-radius:4px;position:relative;cursor:pointer;transition:border-color 0.15s;overflow:hidden;}
+.product-card:hover{border-color:#111;}
+.product-card.main{border-color:#111;}
+.product-badge{position:absolute;top:10px;left:10px;background:#111;color:#fff;font-family:'Roboto Mono',monospace;font-size:9px;letter-spacing:1px;text-transform:uppercase;padding:3px 8px;border-radius:4px;}
+.product-img{width:100%;height:160px;object-fit:contain;background:#FDD8DF;display:block;}
+.product-info{padding:12px 14px;}
+.product-name{font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;color:#111;margin-bottom:2px;}
+.product-sub{font-family:'Roboto Mono',monospace;font-size:9px;letter-spacing:1px;text-transform:uppercase;color:#aaa;margin-bottom:8px;}
+.product-tags{display:flex;gap:6px;flex-wrap:wrap;}
+.product-tag{font-family:'Roboto Mono',monospace;font-size:9px;border:1px solid #eee;padding:3px 8px;color:#777;border-radius:4px;}
+
+.accessory-block{display:flex;align-items:center;gap:14px;border:1px solid #eee;border-radius:4px;padding:12px 16px;margin-bottom:20px;cursor:pointer;transition:border-color 0.15s;}
+.accessory-block:hover{border-color:#111;}
+.accessory-label{font-family:'Roboto Mono',monospace;font-size:9px;letter-spacing:1.5px;text-transform:uppercase;color:#F26184;margin-bottom:4px;}
+.accessory-img{width:52px;height:52px;object-fit:contain;background:#FDD8DF;flex-shrink:0;border-radius:4px;}
+.accessory-name{font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;color:#111;margin-bottom:2px;}
+.accessory-desc{font-size:12px;color:#aaa;}
+
+.tips-block{border:1px solid #eee;border-radius:4px;padding:20px;margin-bottom:24px;}
+.tips-eyebrow{font-family:'Roboto Mono',monospace;font-size:9px;letter-spacing:1.5px;text-transform:uppercase;color:#aaa;margin-bottom:14px;}
+.tips-title{font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;color:#111;margin-bottom:12px;}
+.tip-item{display:flex;align-items:flex-start;gap:10px;margin-bottom:8px;font-size:13px;color:#555;line-height:1.6;}
+.tip-item::before{content:'✓';color:#F26184;font-weight:700;flex-shrink:0;}
+
+.teasing-line{font-size:15px;font-style:italic;color:#F26184;margin:20px 0;padding:14px 18px;border-left:3px solid #FDD8DF;background:#fff9fb;border-radius:0 4px 4px 0;}
+
+.result-actions{display:flex;align-items:center;gap:16px;flex-wrap:wrap;margin-bottom:16px;}
+.btn-voir{display:inline-flex;align-items:center;justify-content:center;background:#111;color:#fff;text-decoration:none;font-family:'Poppins',sans-serif;font-size:12px;font-weight:700;letter-spacing:2px;text-transform:uppercase;padding:0 28px;height:48px;transition:background 0.2s;border-radius:4px;}
+.btn-voir:hover{background:#F26184;}
+.btn-refaire{background:transparent;border:none;font-family:'Poppins',sans-serif;font-size:12px;color:#aaa;cursor:pointer;text-decoration:underline;}
+.btn-refaire:hover{color:#111;}
+.result-contact{font-size:12px;color:#aaa;margin-top:10px;}
+.result-contact a{color:#F26184;text-decoration:none;}
+
+@media(max-width:540px){
+  .intro,.question-wrap,.result-wrap{padding:32px 18px 60px;}
+  .products-grid,.personality-grid{grid-template-columns:1fr;}
+  .stats{gap:24px;}
+}
+
+</style>
+
+<div class="screen active" id="s-intro">
+  <div class="intro">
+    <p class="intro-eyebrow">Test personnalisé — gratuit &amp; sans inscription</p>
+    <h1 class="intro-title">Quelle sissy<br>rêves-tu<br>vraiment <span>d'être ?</span></h1>
+    <p class="intro-desc">Un test intime qui révèle ton fantasme le plus profond et ta cage idéale. 8 questions en crescendo. Attention — ça monte en intensité.</p>
+    <div class="intro-badges">
+      <span class="intro-badge">Personnalisé</span>
+      <span class="intro-badge">Sans inscription</span>
+      <span class="intro-badge">100% gratuit</span>
+    </div>
+    <hr class="divider">
+    <div class="stats">
+      <div><span class="stat-num">23 400+</span><span class="stat-label">Tests complétés</span></div>
+      <div><span class="stat-num">8</span><span class="stat-label">Questions ciblées</span></div>
+      <div><span class="stat-num">13</span><span class="stat-label">Profils distincts</span></div>
+    </div>
+    <button class="btn-start" onclick="startQuiz()">Faire le test +</button>
+  </div>
+</div>
+
+<div class="screen" id="s-quiz">
+  <div class="question-wrap">
+    <div class="q-top">
+      <span class="q-progress-label" id="q-label">Question 1 sur 8</span>
+      <span class="q-progress-count" id="q-count">1 / 8</span>
+    </div>
+    <div class="q-progress-track"><div class="q-progress-fill" id="q-fill" style="width:0%"></div></div>
+    <div class="q-progress-pct" id="q-pct">0% complété</div>
+    <div id="q-banner"></div>
+    <div id="q-content"></div>
+    <div class="q-nav">
+      <button class="btn-prev" id="btn-prev" onclick="prevQ()">← Retour</button>
+    </div>
+  </div>
+</div>
+
+<div class="screen" id="s-result">
+  <div class="result-wrap" id="result-content"></div>
+</div>
+
+<script>
+
+const QUESTIONS=[
+  {eyebrow:'Ton imaginaire',text:'Quand tu imagines ta vie en sissy, tu te vois d\'abord…',hint:'Sois honnête — ta réponse oriente toute la suite du test.',opts:[{l:'A',t:'La princesse douce',s:'Élégante, choyée, admirée pour ta beauté.'},{l:'B',t:'La soubrette dévouée',s:'Gentille, souriante, tu aimes rendre service.'},{l:'C',t:'La fille qui rougit',s:'Timide, gênée, tu craques quand on te regarde.'},{l:'D',t:'La coquine osée',s:'Tu commences à avoir des envies que tu n\'oses pas nommer.'}]},
+  {eyebrow:'Ta transformation',text:'Dans ton rêve, ta transformation féminine est…',hint:'Ce qui t\'excite le plus dans le processus.',opts:[{l:'A',t:'Lente et sensuelle',s:'Pleine de compliments sur ta beauté.'},{l:'B',t:'Pratique et disciplinée',s:'Tu apprends à servir avec un uniforme parfait.'},{l:'C',t:'Un peu gênante',s:'Avec des moqueries légères sur ta maladresse.'},{l:'D',t:'Rapide et vulgaire',s:'Gros seins, lèvres gonflées, tenue ultra-courte.'}]},
+  {eyebrow:'Ton excitation',text:'Ce qui t\'excite le plus quand tu y penses…',hint:'Celle qui revient le plus souvent dans tes fantasmes.',opts:[{l:'A',t:'Te sentir belle',s:'Féminine et précieuse dans de la belle lingerie.'},{l:'B',t:'Obéir et servir',s:'Te sentir utile en faisant le ménage ou des massages.'},{l:'C',t:'L\'humiliation douce',s:'Entendre des remarques sur ta petite chose inutile.'},{l:'D',t:'Être utilisée',s:'Touchée, remplie, sans que tu puisses décider.'}]},
+  {eyebrow:'Ton clito',text:'Ton petit clito dans ce rêve idéal…',hint:'Pas de jugement ici. Juste la vérité.',opts:[{l:'A',t:'Caressé tendrement',s:'Pendant que tu te sens toute fille.'},{l:'B',t:'Complètement ignoré',s:'Tu te concentres sur le service.'},{l:'C',t:'Moqué ouvertement',s:'Trop petit pour servir.'},{l:'D',t:'Verrouillé en chasteté',s:'Pour que tu restes excitée en permanence.'}]},
+  {eyebrow:'Ton rôle',text:'Ton rôle préféré dans ce fantasme…',hint:'Celui qui te fait mouiller rien qu\'en y pensant.',opts:[{l:'A',t:'La poupée précieuse',s:'On t\'habille, te maquille, te traite comme une princesse.'},{l:'B',t:'La maid parfaite',s:'Disciplinée, tout le travail domestique avec soin.'},{l:'C',t:'La looser pathétique',s:'Exposée, ridiculisée pour ton manque de virilité.'},{l:'D',t:'La salope disponible',s:'Prise quand on veut, sans que tu décides.'}]},
+  {eyebrow:'La progression',text:'Plus le rêve avance, tu te vois…',hint:'Où ça te mène, au fond.',opts:[{l:'A',t:'Devant le miroir',s:'Affirmations positives sur ta féminité.'},{l:'B',t:'Sous des règles strictes',s:'Service et obéissance disciplinés.'},{l:'C',t:'Dans la honte',s:'Confessions humiliantes, tâches dégradantes.'},{l:'D',t:'À quatre pattes',s:'Tu t\'entraînes pour être un meilleur trou.'}]},
+  {eyebrow:'L\'intensité',text:'Le moment le plus intense de ton rêve…',hint:'Celui qui te fait perdre le contrôle.',opts:[{l:'A',t:'Tu es si jolie',s:'Quand on te dit à quel point tu es féminine.'},{l:'B',t:'Parfaite obéissance',s:'Quand on te félicite pour ton service.'},{l:'C',t:'La honte qui submerge',s:'Pathétique petite sissy — et tu adores ça.'},{l:'D',t:'Utilisée sans ménagement',s:'Remplie, traitée comme un objet.'}]},
+  {eyebrow:'Le climax',text:'Si ce rêve devenait totalement réel, tu accepterais…',hint:'La vraie question. Réponds honnêtement.',opts:[{l:'A',t:'La féminisation douce',s:'Tenues élégantes, beaucoup de compliments.'},{l:'B',t:'Le contrat de service',s:'24/7, tâches ménagères, règles strictes.'},{l:'C',t:'L\'humiliation profonde',s:'Exposition, moqueries constantes, perte de dignité.'},{l:'D',t:'La vie de bimbo',s:'Chasteté permanente, hypno intensif, free-use total.'}]}
+];
+
+const CAGE_URLS={
+  'Python V7 rose':'https://chastifyme.com/products/cage-chastete-resine-mamba-python-v7?variant=52781268926728',
+  'Python V8 rose':'https://chastifyme.com/products/cage-de-chastete-python-v8-resine?variant=52682011934984',
+  'Python V8 Rose':'https://chastifyme.com/products/cage-de-chastete-python-v8-resine?variant=52682011934984',
+  'HTV4 rose':'https://chastifyme.com/products/cage-chastete-resine-holly-trainer-v4?variant=52781554565384',
+  'Holy Trainer V4 rose':'https://chastifyme.com/products/cage-chastete-resine-holly-trainer-v4?variant=52781554565384',
+  'Cobra Metal':'https://chastifyme.com/products/cobra-metal',
+  'Cobra Métal':'https://chastifyme.com/products/cobra-metal',
+  'Flat Bird V3 Métal':'https://chastifyme.com/products/flat-bird-v3'
+};
+
+const CAGE_IMGS={
+  'Python V7 rose':'https://cdn.shopify.com/s/files/1/0677/3417/6008/files/produit-cage-chastete-resine-mamba-python-v5-s-rose.png?v=1775748310',
+  'Python V8 rose':'https://cdn.shopify.com/s/files/1/0677/3417/6008/files/Frame_70.png?v=1775748310',
+  'Python V8 Rose':'https://cdn.shopify.com/s/files/1/0677/3417/6008/files/Frame_70.png?v=1775748310',
+  'HTV4 rose':'https://cdn.shopify.com/s/files/1/0677/3417/6008/files/Frame_69.png?v=1775748310',
+  'Holy Trainer V4 rose':'https://cdn.shopify.com/s/files/1/0677/3417/6008/files/Frame_69.png?v=1775748310',
+  'Cobra Metal':'https://cdn.shopify.com/s/files/1/0677/3417/6008/files/Frame_69.png?v=1775748310',
+  'Cobra Métal':'https://cdn.shopify.com/s/files/1/0677/3417/6008/files/Frame_69.png?v=1775748310',
+  'Flat Bird V3 Métal':'https://votre-image-flat-bird.jpg'
+};
+
+const ARCHETYPES=[
+  {id:'A_low',cond:(c,s)=>c.A>=c.B&&c.A>=c.C&&c.A>=c.D&&s<=14,
+   label:'Princess',level:'Rêve tendre et exploratoire',score_label:'8–14 pts',
+   analyse:"Oh ma douce petite princesse… Je te vois si clairement. Tu es une romantique raffinée, une esthète sensible qui cherche dans la féminité une forme de grâce et de validation presque sacrée. Ta fixation sissy est une quête délicate de beauté, de douceur et de tendresse. Tu as besoin qu'on te regarde avec admiration, qu'on te couvre de compliments, qu'on te fasse sentir précieuse et désirable. La lingerie fine qui caresse ta peau épilée, les longs moments devant le miroir où tu te découvres enfin femme, les caresses lentes… voilà ce qui te fait trembler. L'humiliation brutale et le sexe cru t'effraient encore un peu. Tu n'es pas prête à tout sacrifier… du moins, pas encore. Mais je sens déjà cette petite faille en toi, ce désir discret qui murmure qu'un jour, tu voudras qu'on te pousse beaucoup plus loin.\\n\\nImagine maintenant cette jolie princesse, enfermée dans une cage rose délicate et brillante. Chaque fois que tu te regardes dans le miroir en robe, tu sens cette pression constante, ce rappel exquis que ton petit clito ne t'appartient plus. Il pulse doucement, inutile, tandis que tu te sens de plus en plus féminine, de plus en plus excitée par ton propre déni. Cette cage ne te punit pas… elle te transforme. Et bientôt, tu ne pourras plus t'en passer.",
+   aspiration:'Devenir une vraie princesse féminine, élégante et choyée, admirée pour sa grâce et sa délicatesse.',
+   bars:{fem:90,chast:80,anal:20,bimbo:8,hum:12},
+   cage_main:'Python V7 rose',cage_alt:'HTV4 rose',
+   etapes:['Porte une jolie culotte en dentelle tous les jours pendant une semaine et passe 10 minutes chaque soir devant le miroir à te complimenter à voix haute sur ta féminité.','Achète ta première cage (Python V7 Rose) et porte-la 4 heures par jour en te regardant en robe, en répétant « Je suis une jolie princesse verrouillée ».','Fais une session complète : maquillage doux + robe + cage pendant 2 heures, puis note dans un journal ce que tu as ressenti en étant niée.'],
+   cta:'Découvre le Python V7 rose — ta première cage princesse',
+   teasing:'Tu es la plus jolie princesse du terrier… mais même les princesses finissent à genoux.'},
+
+  {id:'A_high',cond:(c,s)=>c.A>=c.B&&c.A>=c.C&&c.A>=c.D&&s>14,
+   label:'Jolie Petite Princess',level:'Rêve addictif et assumé',score_label:'15+ pts',
+   analyse:"Ma jolie petite princesse… Tu es d'une sensibilité exquise, presque fragile dans ta quête de beauté et de validation féminine. Tu vis pour les compliments, les caresses verbales, les tissus soyeux qui glissent sur ton corps. Tu veux être vue comme une poupée précieuse, choyée, admirée. Le monde brut te fait encore peur, tu préfères la lente métamorphose sensuelle et les regards tendres. Pourtant, sous cette douceur apparente, je perçois déjà l'envie grandissante d'être guidée plus fermement.\\n\\nImagine maintenant ta petite verge enfermée dans une cage élégante et rose, si étroite qu'elle ne te permettra plus jamais d'oublier ta condition. Chaque compliment que tu recevras sur ta beauté fera pulser ta cage, chaque regard admiratif te rappellera que même ta plus jolie version reste verrouillée pour mon plaisir. Tu seras la plus belle… et la plus frustrée des princesses.",
+   aspiration:'Tu désires être la plus jolie petite princesse possible, constamment complimentée et habillée comme une poupée de luxe.',
+   bars:{fem:95,chast:80,anal:25,bimbo:15,hum:22},
+   cage_main:'Python V7 rose',cage_alt:'HTV4 rose',
+   etapes:['Crée une playlist de 5 hypno « gentle feminization » et écoute-la tous les soirs en lingerie.','Commande la Python V7 Rose et porte-la pendant tes sessions miroir quotidiennes.','Porte ta cage + une robe princesse pendant 3 heures consécutives et envoie-toi une photo anonyme pour te voir « en vraie princesse verrouillée ».'],
+   cta:'Commence avec le Python V7 — la cage de la princesse qui s\'assume',
+   teasing:'Tu es faite pour être choyée… et tu le sais déjà.'},
+
+  {id:'AB',cond:(c,s)=>{const d=Math.abs(c.A-c.B);return d<=1&&c.A>=c.C&&c.A>=c.D&&c.B>=c.C&&c.B>=c.D},
+   label:'Gentille Fifille',level:'Rêve addictif et assumé',score_label:'Mixte A+B',
+   analyse:"Ma gentille petite fifille… Tu es naturellement docile, d'une douceur presque touchante. Ton plus grand plaisir est d'être guidée avec élégance, d'obéir à des règles claires et de recevoir ces doux « bonne fille » qui te font fondre. Tu aimes la tendresse contrôlée, les ordres donnés avec raffinement. Mais derrière cette obéissance sage, je vois déjà le désir secret d'être tenue plus serrée, dirigée avec plus d'autorité.\\n\\nEt quand ta petite cocklette sera enfin verrouillée dans une cage fine et rose, chaque « bonne fille » prononcé par ta Maîtresse te fera bander inutilement contre les barreaux. Tu resteras gentille, obéissante… mais constamment au bord de la supplication, frustrée et trempée, attendant la permission que tu ne recevras peut-être jamais.",
+   aspiration:'Tu aspires à être la gentille fifille obéissante par excellence, guidée avec élégance et récompensée par des mots tendres.',
+   bars:{fem:85,chast:85,anal:30,bimbo:10,hum:20},
+   cage_main:'Python V8 rose',cage_alt:'HTV4 rose',
+   etapes:['Établis 3 petites règles quotidiennes simples (ex. : dire « oui Maîtresse » dans ta tête à chaque fois que tu vas aux toilettes).','Porte la Python V8 Rose pendant tes moments d\'obéissance (ménage, lecture, etc.).','Fais une journée complète « bonne fifille » : règles + cage + tenue féminine, et note chaque fois que tu as eu envie de toucher.'],
+   cta:'Le Python V8 — pour la sissy douce et dévouée que tu es',
+   teasing:'Douce et dévouée. Le mélange le plus dangereux.'},
+
+  {id:'B',cond:(c,s)=>c.B>c.A&&c.B>=c.C&&c.B>=c.D,
+   label:'Soubrette Dévouée',level:'Rêve addictif et assumé',score_label:'Majorité B',
+   analyse:"Ah… ma petite esclave dévouée. Tu es une perfectionniste dans l'âme, faite pour servir avec grâce et précision. Ton excitation naît de l'utilité absolue : uniforme impeccable, tâches répétées, anticipation des désirs. Tu es prête à mettre ton plaisir de côté pour devenir indispensable. Tu ne vis pas pour jouir… tu vis pour être utile, disciplinée, parfaite.\\n\\nMaintenant imagine-toi en train de faire le ménage, tablier noué, pendant que ta cocklette reste prisonnière d'une cage métallique ou rose, serrée juste assez pour te rappeler à chaque mouvement que même ton service le plus dévoué se fait sous contrôle total. Plus tu travailleras dur, plus ta frustration grandira… et plus tu deviendras la soubrette idéale.",
+   aspiration:'Tu rêves de devenir la soubrette la plus dévouée et indispensable qui soit, vivant uniquement pour servir avec grâce et perfection.',
+   bars:{fem:65,chast:90,anal:30,bimbo:15,hum:40},
+   cage_main:'HTV4 rose',cage_alt:'Python V8 rose',
+   etapes:['Crée un planning de 5 tâches ménagères hebdomadaires en tenue féminine.','Porte la HTV4 Rose pendant toutes tes sessions de service (même courtes).','Fais une session de 2 heures de ménage complet en cage + uniforme, puis fais une révérence devant le miroir en disant « Merci de me garder verrouillée ».'],
+   cta:'La HTV4 Rose — la cage de la maid parfaite et disciplinée',
+   teasing:'Une bonne maid ne pense pas… elle sert.'},
+
+  {id:'BC',cond:(c,s)=>{const d=Math.abs(c.B-c.C);return d<=1&&c.B>=c.A&&c.B>=c.D&&c.C>=c.A&&c.C>=c.D},
+   label:'Soubrette Humiliée',level:'Rêve addictif et assumé',score_label:'Mixte B+C',
+   analyse:"Ma petite soubrette perverse… Tu as trouvé le mélange le plus exquis entre dévotion et humiliation raffinée. Tu aimes te mettre à quatre pattes pour nettoyer, pendant qu'une voix élégante te rappelle à quel point tu es ridicule et inférieure. Ce contraste entre ton désir de bien servir et les moqueries cruelles te fait vibrer intensément.\\n\\nEt lorsque ta petite verge sera enfermée dans une cage courte et restrictive, chaque insulte prononcée pendant que tu frottes le sol fera pulser ta chair inutile contre le métal. Tu serviras mieux, tu te baisseras plus bas, tout en sentant constamment cette cage qui te rappelle que tu n'es qu'une soubrette humiliée… et que tu en redemandes.",
+   aspiration:'Tu aspires à être une soubrette à la fois utile et constamment rabaissée, servant avec dévotion tout en étant humiliée avec raffinement.',
+   bars:{fem:55,chast:95,anal:35,bimbo:20,hum:75},
+   cage_main:'Cobra Metal',cage_alt:'HTV4 rose',
+   etapes:['Porte des panties féminins sous tes vêtements normaux toute la journée pendant 5 jours.','Porte la Cobra Métal pendant une session de ménage tout en t\'insultant doucement à voix haute.','Fais une tâche humiliante (ex. : nettoyer le sol à quatre pattes) avec la cage + un plug, et écris une petite confession après.'],
+   cta:'La Cobra Métal — la cage qui te maintient dans ta place',
+   teasing:'Servir en rougissant. C\'est ça qui te fait mouiller, n\'est-ce pas ?'},
+
+  {id:'C_low',cond:(c,s)=>c.C>c.A&&c.C>c.B&&c.C>=c.D&&s<=18,
+   label:'Petite Sissy Timide',level:'Rêve tendre et exploratoire',score_label:'Majorité C ≤18',
+   analyse:"Ma timide petite chose… Tu rougis si facilement. Tu es excitée par ta propre vulnérabilité, par cette honte délicate qui t'envahit quand on te regarde comme une sissy maladroite. Tu as encore peur, mais tu adores déjà qu'on te fasse remarquer ta pathétique faiblesse avec une pointe de cruauté élégante.\\n\\nImagine maintenant ta cocklette verrouillée dans une cage discrète mais impitoyable. Chaque fois que tu rougiras devant ton reflet, chaque fois que ta timidité te fera baisser les yeux, tu sentiras cette pression constante qui te dira : « Même ta timidité t'appartient de moins en moins. » Tu deviendras encore plus timide… et encore plus excitée.",
+   aspiration:'Tu rêves d\'être reconnue comme une petite sissy timide et vulnérable, doucement forcée à assumer ta faiblesse.',
+   bars:{fem:40,chast:95,anal:40,bimbo:28,hum:65},
+   cage_main:'Python V7 rose',cage_alt:'Holy Trainer V4 rose',
+   etapes:['Porte une culotte rose tous les jours et note tes sensations dans un journal intime.','Porte la Python V7 Rose 2 heures par jour en te regardant dans le miroir sans te toucher.','Fais une session « coming out timide » : cage + tenue complète + 10 minutes à répéter « Je suis une petite sissy timide verrouillée ».'],
+   cta:'La Python V7 Rose — la cage qui te rappelle ta vraie nature',
+   teasing:'Plus tu rougis, plus tu mouilles, petite looser.'},
+
+  {id:'C_high',cond:(c,s)=>c.C>c.A&&c.C>c.B&&c.C>=c.D&&s>18,
+   label:'Sissy Pathétique',level:'Rêve extrême, sombre et irrésistible',score_label:'Majorité C 19+',
+   analyse:"Regarde-toi, ma petite looser… Tu es une véritable pathétique, et cette vérité t'excite au plus haut point. Ton plaisir est profondément masochiste : plus on te rabaisse avec classe, plus on te traite de raté en robe, plus ton corps réagit violemment. Tu veux qu'on déconstruise ton ego avec précision.\\n\\nEt quand ta petite cocklette inutile sera enfin enfermée dans une cage plate ou courte, chaque moquerie sur ta virilité perdue fera gonfler ta chair contre les barreaux sans aucun soulagement possible. Tu seras pathétique… constamment, douloureusement, merveilleusement pathétique.",
+   aspiration:'Tu aspires à être complètement brisée dans ta virilité, traitée comme la looser pathétique que tu es au plus profond de toi.',
+   bars:{fem:60,chast:95,anal:65,bimbo:45,hum:95},
+   cage_main:'Flat Bird V3 Métal',cage_alt:'Holy Trainer V4 rose',
+   etapes:['Écris tous les soirs 5 phrases humiliantes sur ta virilité dans un carnet.','Porte la Flat Bird V3 Métal au moins 6 heures par jour en te répétant que tu es une looser.','Fais une session complète : tenue ridicule + cage + écriture de confession + lecture à voix haute devant le miroir.'],
+   cta:'La Flat Bird V3 Métal — pour celles qui n\'ont plus de retour possible',
+   teasing:'Il n\'y a plus de retour en arrière possible pour toi.'},
+
+  {id:'DA',cond:(c,s)=>c.D>c.C&&c.D>c.B&&c.A>=c.C&&c.A>=c.B,
+   label:'Salope Provocante',level:'Rêve addictif et assumé',score_label:'Mixte D+A',
+   analyse:"Ma petite allumeuse raffinée… Tu es une coquette provocante dans toute ta splendeur. Tu aimes aguicher avec grâce et malice : une jupe un peu trop courte, un regard en coin, un mouvement de hanches calculé, tout en feignant une innocence presque crédible. Tu veux qu'on te désire intensément, qu'on te regarde avec une faim grandissante, qu'on perde patience devant tes jeux élégants. Derrière tes airs taquins et tes sourires espiègles se cache une petite salope qui rêve secrètement qu'on la saisisse fermement, qu'on lui arrache ses provocations et qu'on lui apprenne enfin sa vraie place.\\n\\nEt maintenant, imagine ta petite cocklette enfermée dans une cage rose voyante, courte et impitoyable. Chaque fois que tu provoqueras, chaque balancement de hanches, chaque regard provocant que tu lanceras, tu sentiras cette pression constante contre les barreaux. Ta cage te rappellera cruellement que tu n'as plus le droit de jouir de tes propres provocations.",
+   aspiration:'Tu rêves d\'être une salope provocante irrésistible, constamment désirée et punie pour tes provocations.',
+   bars:{fem:80,chast:100,anal:70,bimbo:55,hum:72},
+   cage_main:'Python V8 Rose',cage_alt:'Holy Trainer V4 rose',
+   etapes:['Porte des tenues provocantes (jupe courte, bas) chez toi et prends des poses devant le miroir.','Porte la Python V8 Rose pendant tes sessions de provocation.','Fais une session « allumeuse verrouillée » : tenue provocante + cage + 20 minutes à te caresser par-dessus la cage sans jamais l\'enlever.'],
+   cta:'La Python V8 Rose — la cage de la coquette qui s\'abandonne',
+   teasing:'Tu allumes. Et tu sais exactement ce que tu fais.'},
+
+  {id:'DB',cond:(c,s)=>c.D>c.C&&c.D>c.A&&c.B>c.A&&c.B>c.C,
+   label:'Salope de Service',level:'Rêve addictif et assumé',score_label:'Mixte D+B',
+   analyse:"Ma petite salope dévouée et insatiable… Tu as réussi le mélange le plus pervers et le plus exquis : tu sers avec une grâce impeccable, tu nettoies, tu masses, tu obéis avec dévotion… mais au fond de toi brûle une faim sexuelle dévorante. Tu associes naturellement l'obéissance et le remplissage. Tu es prête à tout pour être utilisée : plug bien enfoncé pendant que tu frottes le sol, cage serrée pendant que tu sers le thé, gorge entraînée après chaque tâche accomplie.\\n\\nEt quand ta petite cocklette sera enfin verrouillée dans une cage restrictive, chaque tâche que tu accompliras, chaque révérence, chaque massage donné te rendra encore plus affamée. Tu sentiras ta verge inutile pulser contre la cage à chaque fois que tu penseras à une grosse queue qui pourrait te remplir.",
+   aspiration:'Tu aspires à devenir la parfaite salope de service : dévouée dans les tâches et insatiable dans le sexe.',
+   bars:{fem:68,chast:100,anal:92,bimbo:50,hum:75},
+   cage_main:'Cobra Métal',cage_alt:'Python V8 rose',
+   etapes:['Porte un plug pendant tes tâches ménagères quotidiennes.','Porte la Cobra Métal pendant toutes tes sessions de service.','Fais une journée « service + frustration » : tâches ménagères + cage + hypno BBC ou gloryhole pendant 30 minutes sans toucher.'],
+   cta:'La Cobra Métal — la cage de la slut qui sert et se fait prendre',
+   teasing:'Tu sers avec la bouche… dans tous les sens du terme.'},
+
+  {id:'D_mid',cond:(c,s)=>c.D>=c.A&&c.D>=c.B&&c.D>=c.C&&s>=15&&s<=22,
+   label:'Bimbo Doll Stupide',level:'Rêve addictif et assumé',score_label:'Majorité D 15-22',
+   analyse:"Ma jolie poupée vide et futile… Tu ne veux plus penser. Tu veux devenir une créature légère, giggly, superficielle, obsédée uniquement par son apparence, ses courbes et le regard des autres sur toi. Gros seins, lèvres gonflées, maquillage permanent de luxe, cerveau en mode off : voilà ton idéal le plus exquis. Moins tu réfléchis, plus ton corps s'embrase.\\n\\nEt maintenant imagine ta petite cocklette enfermée dans une cage rose flashy, courte et humiliante. Chaque fois que tu giggleras bêtement devant le miroir, chaque fois que tu te sentiras stupide et jolie, chaque fois que ton cerveau se videra un peu plus, tu sentiras cette pression constante, cette cage qui te rappelle que même ta bêtise est contrôlée.",
+   aspiration:'Tu rêves de te transformer en une poupée bimbo stupide, vide et futile, dont le seul but est d\'être belle et utilisée.',
+   bars:{fem:85,chast:100,anal:75,bimbo:95,hum:60},
+   cage_main:'Python V8 Rose',cage_alt:'Python V8 rose',
+   etapes:['Écoute 20 minutes d\'hypno bimbo tous les jours.','Porte la Python V8 Rose pendant tes sessions maquillage et pose.','Fais une session complète : maquillage bimbo + tenue rose + cage + 15 minutes à giggler et répéter « Je suis une poupée stupide verrouillée ».'],
+   cta:'La Python V8 Rose — la cage de la bimbo qui ne pense plus',
+   teasing:'Plus tu perds de neurones, plus tu gagnes en valeur absolue.'},
+
+  {id:'CD',cond:(c,s)=>{const d=Math.abs(c.C-c.D);return d<=1&&c.C>=c.A&&c.C>=c.B&&c.D>=c.A&&c.D>=c.B},
+   label:'Bouffeuse de Sperme',level:'Rêve extrême, sombre et irrésistible',score_label:'Mixte C+D',
+   analyse:"Ma sale petite cumslut… Tu es excitée par la dégradation la plus raffinée et la plus crue à la fois. Tu veux être réduite à un réceptacle élégant pour le plaisir des autres : un trou à remplir, une bouche à utiliser, une salope ruinée bonne à rien d'autre. Tu fantasmes sur le fait d'être couverte de sperme, forcée à avaler, filmée dans ta déchéance la plus totale.\\n\\nEt quand ta petite cocklette sera enfin verrouillée dans une cage courte et humiliante, chaque goutte de sperme que tu avaleras, chaque fois qu'on te remplira ou qu'on te couvrira, tu sentiras ta verge inutile pulser violemment contre les barreaux. Tu deviendras une bouffeuse de sperme encore plus vorace, encore plus désespérée.",
+   aspiration:'Tu aspires à devenir une véritable cumslut dégradée, réduite à un simple réceptacle à sperme sans aucune dignité.',
+   bars:{fem:35,chast:100,anal:85,bimbo:65,hum:98},
+   cage_main:'Flat Bird V3 Métal',cage_alt:'Holy Trainer V4 rose',
+   etapes:['Regarde du contenu cumplay ou gloryhole tous les jours pendant 15 minutes.','Porte la Flat Bird V3 Métal pendant tes sessions de visionnage.','Fais une session « entraînement cumslut » : cage + plug + hypno + écriture de confession sur ton envie de sperme.'],
+   cta:'La Flat Bird V3 Métal — pour la cumslut rabaissée et utilisée que tu es',
+   teasing:'Rabaissée. Utilisée. Et tu en veux encore et encore.'},
+
+  {id:'D_high',cond:(c,s)=>c.D>=c.A&&c.D>=c.B&&c.D>=c.C&&s>=23,
+   label:'Bimbo Ultime',level:'Rêve extrême, sombre et irrésistible',score_label:'23–32 pts',
+   analyse:"Tu es déjà très loin, ma petite chose irrécupérable… Tu veux le grand œuvre complet : un corps refait à la perfection, un cerveau effacé par l'hypnose répétée, une cage permanente et une existence entière de free-use. Tu ne veux plus d'identité propre, juste être une jolie poupée silicone destinée à vider les couilles de qui le désire.\\n\\nEt lorsque ta cocklette sera définitivement enfermée dans une cage permanente, rose ou métallique selon ton degré de déchéance, chaque fois que tu te sentiras bimbo vide et stupide, chaque fois qu'on t'utilisera comme un simple trou, tu sentiras cette pression constante qui te rappellera que même ton plaisir ultime t'est refusé.",
+   aspiration:'Devenir un objet sexuel irrécupérable et parfait : toujours disponible, totalement vide, utilisable sans retenue.',
+   bars:{fem:70,chast:100,anal:90,bimbo:98,hum:85},
+   cage_main:'Flat Bird V3 Métal',cage_alt:'Holy Trainer V4 rose',
+   etapes:['Commence un entraînement quotidien : hypno bimbo + posture + voix.','Porte la Flat Bird V3 Métal au minimum 8 heures par jour.','Fais une journée « bimbo verrouillée » : tenue ultra-vulgaire + cage + hypno intensif + plug permanent.'],
+   cta:'La Flat Bird V3 Métal — la cage ultime pour l\'objet irrécupérable que tu es',
+   teasing:'Il est déjà trop tard pour toi, ma petite chose… tu le sais, n\'est-ce pas ?'},
+
+  {id:'mix',cond:(c,s)=>s>=27,
+   label:'Bimbo Irrécupérable',level:'Rêve extrême, sombre et irrésistible',score_label:'Score ≥27',
+   analyse:"Enfin te voilà, ma petite sissy brisée… Tu as sombré si profondément qu'il ne reste presque plus rien de l'homme que tu étais. Ta personnalité est un mélange exquis et toxique de féminité, de soumission extrême, d'humiliation profonde, de faim sexuelle insatiable et de perte totale de contrôle. Tu rêves d'un point de non-retour définitif où tu seras totalement possédée, transformée et utilisée vingt-quatre heures sur vingt-quatre.\\n\\nEt quand ta petite cocklette sera verrouillée pour de bon dans une cage que tu ne pourras plus jamais enlever sans permission, tu comprendras enfin que tout est perdu. Chaque pulsation inutile, chaque frustration brûlante te rappellera que tu es complètement brisée. Tu ne seras plus qu'une sissy irrécupérable, belle, vide et désespérément frustrée.",
+   aspiration:'Tu aspires au point de non-retour total : devenir une sissy complètement brisée, possédée et irrécupérable dans tous les aspects de ta vie.',
+   bars:{fem:88,chast:100,anal:92,bimbo:98,hum:95},
+   cage_main:'Flat Bird V3 Métal',cage_alt:'Holy Trainer V4 rose',
+   etapes:['Porte la cage 24h/24 pendant au moins 3 jours consécutifs.','Combine hypno bimbo + hypno chasteté tous les jours.','Fais une session « point de non-retour » : tenue complète + cage + plug + écriture d\'un contrat personnel de soumission totale.'],
+   cta:'La Flat Bird V3 Métal — pour la sissy qui a déjà tout perdu et tout trouvé',
+   teasing:'Félicitations… ou condoléances ? Tu as déjà sombré très, très profond.'}
+];
+
+const BARS_DEF=[
+  {label:'Féminisation',key:'fem'},
+  {label:'Chasteté',key:'chast'},
+  {label:'Anal Training',key:'anal'},
+  {label:'Bimbofication',key:'bimbo'},
+  {label:'Humiliation & Dégradation',key:'hum'}
+];
+
+let cur=0,answers=Array(8).fill(null);
+
+function showScreen(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));document.getElementById(id).classList.add('active');window.scrollTo(0,0);}
+function startQuiz(){cur=0;answers=Array(8).fill(null);showScreen('s-quiz');renderQ();}
+
+function renderQ(){
+  const q=QUESTIONS[cur];
+  const pct=Math.round((cur/8)*100);
+  document.getElementById('q-label').textContent='Question '+(cur+1)+' sur 8';
+  document.getElementById('q-count').textContent=(cur+1)+' / 8';
+  document.getElementById('q-fill').style.width=pct+'%';
+  document.getElementById('q-pct').textContent=pct+'% complété';
+  document.getElementById('q-banner').innerHTML='';
+  let html="<p class=\"q-eyebrow\">" + (q.eyebrow) + "</p><h2 class=\"q-text\">" + (q.text) + "</h2><p class=\"q-hint\">" + (q.hint) + "</p><div class=\"options\">";
+  q.opts.forEach((o,i)=>{
+    const sel=answers[cur]===i;
+    html+="<div class=\"opt" + (sel?' selected':'') + "\" onclick=\"selectAndAdvance(" + (i) + ")\"><span class=\"opt-letter\">" + (o.l) + "</span><div class=\"opt-body\"><div class=\"opt-title\">" + (o.t) + "</div><div class=\"opt-sub\">" + (o.s) + "</div></div><div class=\"opt-radio\"></div></div>";
+  });
+  html+='</div>';
+  document.getElementById('q-content').innerHTML=html;
+  const prevBtn=document.getElementById('btn-prev');
+  prevBtn.style.visibility=cur===0?'hidden':'visible';
+}
+
+function selectAndAdvance(i){
+  answers[cur]=i;
+  if(cur<7){setTimeout(()=>{cur++;renderQ();},220);}
+  else{setTimeout(showResult,220);}
+}
+function prevQ(){if(cur>0){cur--;renderQ();}}
+
+function calcArchetype(){
+  const map=['A','B','C','D'];
+  let counts={A:0,B:0,C:0,D:0},score=0;
+  answers.forEach(a=>{if(a!==null){counts[map[a]]++;score+=(a+1);}});
+  for(const arc of ARCHETYPES){if(arc.cond(counts,score))return{arc,score};}
+  const dom=Object.entries(counts).sort((a,b)=>b[1]-a[1])[0][0];
+  return{arc:ARCHETYPES.find(a=>a.id===dom+'_low')||ARCHETYPES[0],score};
+}
+
+function buildRadar(bars){
+  const keys=BARS_DEF.map(b=>b.key);
+  const labels=BARS_DEF.map(b=>b.label);
+  const vals=keys.map(k=>bars[k]||0);
+  const n=keys.length;
+  const cx=160,cy=160,r=100;
+  function pt(angle,val){
+    const rad=(angle-Math.PI/2);
+    const rv=r*val/100;
+    return [cx+rv*Math.cos(rad),cy+rv*Math.sin(rad)];
+  }
+  const angles=keys.map((_,i)=>i*2*Math.PI/n);
+  let grid='';
+  [20,40,60,80,100].forEach(pct=>{
+    const pts=angles.map(a=>pt(a,pct));
+    grid+="<polygon points=\"" + (pts.map(p=>p.join(',')).join(' ')) + "\" fill=\"none\" stroke=\"#f0d0d8\" stroke-width=\"1\"/>";
+  });
+  let axes='';
+  angles.forEach(a=>{
+    const [x,y]=pt(a,100);
+    axes+="<line x1=\"" + (cx) + "\" y1=\"" + (cy) + "\" x2=\"" + (x) + "\" y2=\"" + (y) + "\" stroke=\"#f0d0d8\" stroke-width=\"1\"/>";
+  });
+  const dataPts=angles.map((a,i)=>pt(a,vals[i]));
+  const poly=dataPts.map(p=>p.join(',')).join(' ');
+  let lbls='';
+  angles.forEach((a,i)=>{
+    const dist=135;
+    const rad=(a-Math.PI/2);
+    const lx=cx+dist*Math.cos(rad);
+    const ly=cy+dist*Math.sin(rad);
+    const words=labels[i].split(' ');
+    if(words.length>1){
+      lbls+="<text x=\"" + (lx) + "\" y=\"" + (ly-7) + "\" text-anchor=\"middle\" dominant-baseline=\"middle\" font-size=\"13\" font-family=\"Arial\" font-weight=\"500\" fill=\"#555\">" + (words[0]) + "</text>";
+      lbls+="<text x=\"" + (lx) + "\" y=\"" + (ly+9) + "\" text-anchor=\"middle\" dominant-baseline=\"middle\" font-size=\"13\" font-family=\"Arial\" font-weight=\"500\" fill=\"#555\">" + (words.slice(1).join(' ')) + "</text>";
+    } else {
+      lbls+="<text x=\"" + (lx) + "\" y=\"" + (ly) + "\" text-anchor=\"middle\" dominant-baseline=\"middle\" font-size=\"13\" font-family=\"Arial\" font-weight=\"500\" fill=\"#555\">" + (labels[i]) + "</text>";
+    }
+  });
+  return "<svg viewBox=\"0 0 320 320\" width=\"100%\" style=\"max-width:320px;\">\n    " + (grid) + "" + (axes) + "\n    <polygon points=\"" + (poly) + "\" fill=\"rgba(242,97,132,0.2)\" stroke=\"#F26184\" stroke-width=\"2\"/>\n    " + (dataPts.map(function(p){return '<circle cx="'+p[0]+'" cy="'+p[1]+'" r="5" fill="#F26184"/>';}).join('')) + "\n    " + (lbls) + "\n  </svg>";
+}
+
+function showResult(){
+  const{arc,score}=calcArchetype();
+  showScreen('s-result');
+  const mainUrl=CAGE_URLS[arc.cage_main]||'https://chastifyme.com';
+  const altUrl=CAGE_URLS[arc.cage_alt]||'https://chastifyme.com';
+  const mainImg=CAGE_IMGS[arc.cage_main]||'';
+  const altImg=CAGE_IMGS[arc.cage_alt]||'';
+
+  const barsHtml=BARS_DEF.map(b=>{
+    const v=arc.bars[b.key]||0;
+    const cls=v>=80?'high':v<=30?'low':'';
+    return "<div class=\"bar-row\"><div class=\"bar-label-row\"><span class=\"bar-label\">" + (b.label) + "</span><span class=\"bar-pct\">" + (v) + "%</span></div><div class=\"bar-track\"><div class=\"bar-fill " + (cls) + "\" data-w=\"" + (v) + "\"></div></div></div>";
+  }).join('');
+
+  const tipsHtml=arc.etapes.map(t=>"<div class=\"tip-item\">" + (t) + "</div>").join('');
+
+  document.getElementById('result-content').innerHTML="\n    <span class=\"result-badge-label\">Ton profil personnalisé</span>\n    <p class=\"result-headline\">Tu es :</p>\n    <h2 class=\"result-name\" id=\"result-name-anim\"></h2>\n    <span class=\"result-level\">" + (arc.level) + "</span>\n    <div class=\"score-hero\">\n      <img class=\"score-hero-img\" src=\"https://cdn.shopify.com/s/files/1/0677/3417/6008/files/chastifyme_chastete_cages_blog-chastete-comment-devenir-une-vraie-sissy-test.webp?v=1776883467\" alt=\"Maîtresse Adèle\">\n      <div class=\"score-hero-overlay\"></div>\n      <div class=\"score-hero-content\">\n        <div>\n          <div class=\"score-hero-eyebrow\">Ton score</div>\n          <div><span class=\"score-hero-num\">" + (score) + "</span><span class=\"score-hero-denom\"> / 32</span></div>\n          <div class=\"score-hero-pts\">" + (arc.score_label) + "</div>\n        </div>\n        <div style=\"text-align:right;\">\n          <div class=\"score-level-badge\">" + (arc.level) + "</div>\n          <div class=\"score-archetype\">" + (arc.label) + "</div>\n        </div>\n      </div>\n    </div>\n    <hr class=\"r-divider\">\n    <div class=\"analysis-block\">\n      <div class=\"analysis-eyebrow\">Analyse de personnalité</div>\n      <div class=\"analysis-title\">" + (arc.label) + "</div>\n      <p class=\"analysis-desc\">" + (arc.analyse.replace(/\\n\\n/g,'</p><p class="analysis-desc" style="margin-top:12px;">')) + "</p>\n      <div class=\"analysis-aspiration\"><span class=\"aspiration-label\">Ton aspiration profonde</span>" + (arc.aspiration) + "</div>\n    </div>\n    <div class=\"radar-block\">\n      <div class=\"radar-title\">Profil sissy</div>\n      " + (buildRadar(arc.bars)) + "\n    </div>\n    <div class=\"bars-block\">\n      <div class=\"bars-eyebrow\">Barres de personnalité</div>\n      <div class=\"bars-title\">Ton profil</div>\n      " + (barsHtml) + "\n    </div>\n    <p class=\"reco-eyebrow\">Notre recommandation pour toi</p>\n    <div class=\"products-grid\">\n      <div class=\"product-card main\" onclick=\"window.open('" + (mainUrl) + "','_blank')\">\n        <span class=\"product-badge\">Notre sélection</span>\n        <img class=\"product-img\" src=\"" + (mainImg) + "\" alt=\"" + (arc.cage_main) + "\">\n        <div class=\"product-info\">\n          <div class=\"product-name\">" + (arc.cage_main) + "</div>\n          <div class=\"product-sub\">Résine · Recommandé</div>\n          <div class=\"product-tags\"><span class=\"product-tag\">Rose</span><span class=\"product-tag\">Résine</span></div>\n        </div>\n      </div>\n      <div class=\"product-card\" onclick=\"window.open('" + (altUrl) + "','_blank')\">\n        <img class=\"product-img\" src=\"" + (altImg) + "\" alt=\"" + (arc.cage_alt) + "\">\n        <div class=\"product-info\">\n          <div class=\"product-name\">" + (arc.cage_alt) + "</div>\n          <div class=\"product-sub\">Alternative</div>\n          <div class=\"product-tags\"><span class=\"product-tag\">Rose</span></div>\n        </div>\n      </div>\n    </div>\n    <p class=\"reco-eyebrow\">L'indispensable</p>\n    <div class=\"accessory-block\" onclick=\"window.open('https://chastifyme.com/products/cage-chastete-ceinture-maintien?variant=53420016140552','_blank')\">\n      <img class=\"accessory-img\" src=\"https://chastifyme.com/cdn/shop/files/ceinture-maintien-rose.jpg\" alt=\"Ceinture de maintien\">\n      <div><div class=\"accessory-label\">Accessoire recommandé</div><div class=\"accessory-name\">Ceinture de maintien — Rose</div><div class=\"accessory-desc\">Maintien parfait, zéro glissement. Indispensable pour tout port prolongé.</div></div>\n    </div>\n  ";
+  setTimeout(()=>{document.querySelectorAll('.bar-fill').forEach(b=>{b.style.width=b.dataset.w+'%';});},100);
+  typeText('result-name-anim', arc.label, 60, null);
+}
+
+function typeText(id, text, delay, cb){
+  const el=document.getElementById(id);
+  if(!el)return;
+  el.innerHTML='<span class="cursor"></span>';
+  let i=0;
+  function next(){
+    if(i>=text.length){
+      el.innerHTML=text;
+      if(cb)cb();
+      return;
+    }
+    el.innerHTML=text.slice(0,++i)+'<span class="cursor"></span>';
+    setTimeout(next, delay);
+  }
+  setTimeout(next, 100);
+}
+
+function restart(){cur=0;answers=Array(8).fill(null);showScreen('s-intro');}
+
+</script>
+
+</div>
