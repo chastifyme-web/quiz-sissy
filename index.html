@@ -412,12 +412,12 @@ function buildRadar(bars){
   let grid='';
   [20,40,60,80,100].forEach(pct=>{
     const pts=angles.map(a=>pt(a,pct));
-    grid+="<polygon points=\"" + (pts.map(p=>p.join(',')).join(' ')) + "\" fill=\"none\" stroke=\"#111111\" stroke-width=\"1\"/>";
+    grid+="<polygon points=\"" + (pts.map(p=>p.join(',')).join(' ')) + "\" fill=\"none\" stroke=\"rgba(255,255,255,0.18)\" stroke-width=\"1\"/>";
   });
   let axes='';
   angles.forEach(a=>{
     const [x,y]=pt(a,100);
-    axes+="<line x1=\"" + (cx) + "\" y1=\"" + (cy) + "\" x2=\"" + (x) + "\" y2=\"" + (y) + "\" stroke=\"#111111\" stroke-width=\"1\"/>";
+    axes+="<line x1=\"" + (cx) + "\" y1=\"" + (cy) + "\" x2=\"" + (x) + "\" y2=\"" + (y) + "\" stroke=\"rgba(255,255,255,0.18)\" stroke-width=\"1\"/>";
   });
   const dataPts=angles.map((a,i)=>pt(a,vals[i]));
   const poly=dataPts.map(p=>p.join(',')).join(' ');
